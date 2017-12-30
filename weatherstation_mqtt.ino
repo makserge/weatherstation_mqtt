@@ -29,7 +29,7 @@ const char* WIFI_PASSWD = "***";
 const byte MOTION_SENSOR_PIN = 16;
 boolean lastMotionSensorState = false;
 
-IPAddress mqttServer(192, 168, 43, 96); // mosquitto address
+IPAddress mqttServer(192, 168, 1, 2); // mosquitto address
 const char* MQTT_USER = "smhome";
 const char* MQTT_PASS = "smhome";
 const char* MQTT_CLIENT = "ESP8266";
@@ -533,22 +533,29 @@ void getInternalTemperatureData() {
 }
 
 void publishMqtt(String pubTopic, String payload) {
-  //if (mqttClient.connected()){
+  if (mqttClient.connected()){
     Serial.print("Sending payload: ");
     Serial.print(payload);
     Serial.println();
     Serial.print("to topic: ");
     Serial.println(pubTopic);
-    //if (mqttClient.publish(pubTopic, (char*) payload.c_str())) {
-   //   Serial.println("MQTT Publish OK");
-//}
-  //  else {
-   //   restart();
-   // }
-  //}
- //// else {
- //   restart();
- // }      
+    if (mqttClient.publish(pubTopic, (char*) payload.c_str())) {
+      Serial.println("MQTT Publish OK");
+    }
+    else {
+      restart();
+    }
+  }
+  else {
+    Serial.println("Connecting to MQTT broker ");
+    if (mqttClient.connect(MQTT::Connect(MQTT_CLIENT).set_auth(MQTT_USER, MQTT_PASS))) {
+      Serial.println("Connected to MQTT broker");
+      publishMqtt(pubTopic, payload);
+    }
+    else {
+      restart();
+    }
+  }      
 }
 
 void showTimeTick() {
@@ -650,14 +657,6 @@ void setup() {
   delay(1000);
   setSyncProvider(getNTPtime);
   setSyncInterval(NTP_SERVER_UPDATE_INTERVAL);
-
-  Serial.println("Connecting to MQTT broker ");
-  if (mqttClient.connect(MQTT::Connect(MQTT_CLIENT).set_auth(MQTT_USER, MQTT_PASS))) {
-    Serial.println("Connected to MQTT broker");
-  }
-  else {
-    restart();
-  }
 
   showTime();
   getWeatherData();
