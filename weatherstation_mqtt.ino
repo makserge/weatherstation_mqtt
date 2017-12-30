@@ -524,9 +524,9 @@ void getInternalTemperatureData() {
   tft.setTextFont(0); 
   tft.print(String((int)intHumidity) + "%");
 
-  String payload = "{'temp':";
+  String payload = "{\"temp\": ";
   payload += intTemp;
-  payload += ", 'humidity':";
+  payload += ", \"humidity\": ";
   payload += intHumidity;
   payload += "}";
   publishMqtt(MQTT_TEMP_HUM_TOPIC, payload);
@@ -613,7 +613,7 @@ void readLightLevel() {
     Serial.print(level);
     Serial.println(" lx");
 
-    String payload = "{'level':";
+    String payload = "{\"level\": ";
     payload += level;
     payload += "}";
     publishMqtt(MQTT_LIGHT_LEVEL_TOPIC, payload);
@@ -632,7 +632,7 @@ void readMotionSensor() {
     Serial.print("Motion sensor state: ");
     Serial.println(sensorState);
     
-    String payload = "{'state':";
+    String payload = "{\"state\": ";
     payload += sensorState;
     payload += "}";
     publishMqtt(MQTT_MOTION_SENSOR_TOPIC, payload);
